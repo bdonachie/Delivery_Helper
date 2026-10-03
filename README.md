@@ -1,6 +1,6 @@
 # Delivery Helper
 
-A small web app I use to run a UAT round out of Jira.
+A small web app I use to run a delivery framework out of Jira, with a lot less of it done by hand.
 
 Testers each get their own Jira items. This lists them, lets you filter and update them in bulk, ties blocked work to the defect that's blocking it, and drafts the daily emails. The status summary, each tester's to do list and the CSV export all come straight from Jira, so they're never out of date.
 
