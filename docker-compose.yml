@@ -1,0 +1,37 @@
+services:
+  delivery-helper:
+    build: .
+    image: delivery-helper:latest
+    container_name: delivery-helper
+    restart: unless-stopped
+
+    # Published on every interface so anyone on the local network can reach it at
+    # http://<server-name>:9090 . Change the left-hand port to move it.
+    ports:
+      - "9090:9090"
+
+    # Jira site, the per-user API tokens and the cookie signing key. Never baked into
+    # the image - see .env.example.
+    env_file:
+      - .env
+
+    volumes:
+      # Who can sign in, the project definition, the tester directory and any email
+      # attachments. Read-only: the app never writes here.
+      - ./config:/srv/delivery-helper/config:ro
+      # Exports, generated email drafts, and the day-over-day history snapshots the
+      # summary email compares against. This is the only thing worth backing up.
+      - ./data:/data
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:9090/healthz', timeout=4).status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

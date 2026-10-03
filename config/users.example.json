@@ -1,0 +1,19 @@
+{
+  "_comment": "Who can sign in, and the Jira identity each person's changes are made under. Copy to users.json and edit. Tokens live in the .env, not here: apiTokenEnvironmentVariable names the variable holding the token, so this file carries no secrets. accessCodeEnvironmentVariable is optional; set it and signing in as that person also needs the code, which stops anyone on the network signing in as anyone else.",
+
+  "users": [
+    {
+      "id": "jane",
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "apiTokenEnvironmentVariable": "JIRA_API_TOKEN_JANE"
+    },
+    {
+      "id": "sam",
+      "name": "Sam Lee",
+      "email": "sam.lee@example.com",
+      "apiTokenEnvironmentVariable": "JIRA_API_TOKEN_SAM",
+      "accessCodeEnvironmentVariable": "UAT_ACCESS_CODE_SAM"
+    }
+  ]
+}

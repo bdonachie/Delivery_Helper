@@ -1,0 +1,4 @@
+# Pinned to majors that are known to work together; nothing here is Windows-specific.
+Flask>=3.0,<4.0
+requests>=2.31,<3.0
+gunicorn>=21.2,<24.0

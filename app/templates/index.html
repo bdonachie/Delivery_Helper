@@ -1,0 +1,1694 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ app_name }}</title>
+<style>
+:root{color-scheme:light dark;--bg:#f4f5f7;--panel:#fff;--text:#172b4d;--muted:#6b778c;--line:#dfe1e6;--accent:#0052cc;--accent-soft:#deebff;--danger:#de350b;--ok:#00875a;--warn:#ff8b00;}
+@media(prefers-color-scheme:dark){:root{--bg:#15181d;--panel:#1e2228;--text:#e6e8ec;--muted:#98a1b0;--line:#2f343d;--accent:#4c9aff;--accent-soft:#1c3559;}}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,"Segoe UI",Roboto,sans-serif;}
+header{background:var(--panel);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20;}
+header h1{font-size:16px;margin:0;font-weight:700;letter-spacing:-.2px;}
+.pill{background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;}
+.spacer{margin-left:auto;}
+button{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:6px;padding:7px 13px;cursor:pointer;}
+button:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
+button:disabled{opacity:.45;cursor:not-allowed;}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
+button.primary:hover:not(:disabled){filter:brightness(1.12);color:#fff;}
+.layout{display:grid;grid-template-columns:250px 1fr;gap:16px;padding:16px 20px;align-items:start;}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;}
+.panel h2{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 10px;}
+aside{position:sticky;top:64px;}
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px;}
+select,input[type=text],input[type=date],textarea{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font:inherit;}
+textarea{min-height:90px;resize:vertical;}
+.group{margin-bottom:14px;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+.group-head{display:flex;align-items:center;gap:10px;background:var(--bg);padding:9px 12px;cursor:pointer;font-weight:600;}
+.group-head:hover{background:var(--accent-soft);}
+.group-head .count{color:var(--muted);font-weight:400;font-size:12px;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:6px 10px;border-bottom:1px solid var(--line);}
+td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr.selected{background:var(--accent-soft);}
+tr:hover{background:var(--bg);}
+a{color:var(--accent);text-decoration:none;font-weight:600;}
+a:hover{text-decoration:underline;}
+.status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--line);white-space:nowrap;}
+.status.done{background:#e3fcef;color:#006644;}
+.status.indeterminate{background:#deebff;color:#0747a6;}
+.status.new{background:#dfe1e6;color:#42526e;}
+.muted{color:var(--muted);font-size:12px;}
+.actionbar{position:sticky;bottom:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 -2px 14px rgba(0,0,0,.08);}
+.modal-backdrop{position:fixed;inset:0;background:rgba(9,30,66,.6);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
+.modal{background:var(--panel);border-radius:12px;max-width:860px;width:100%;max-height:86vh;overflow:auto;padding:22px;}
+.modal h3{margin:0 0 8px;font-size:17px;}
+.chip{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:1px 9px;margin:2px 3px 2px 0;font-size:11px;}
+.preview-frame{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff;color:#172b4d;max-height:320px;overflow:auto;}
+.result-ok{color:var(--ok);font-weight:600;} .result-fail{color:var(--danger);font-weight:600;}
+.warnbox{background:#fffae6;border:1px solid var(--warn);color:#172b4d;border-radius:8px;padding:10px 12px;margin:12px 0;font-size:13px;}
+.progress-toast{position:fixed;right:20px;bottom:20px;z-index:60;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:320px;
+  box-shadow:0 6px 24px rgba(9,30,66,.25);}
+.progress-toast h4{margin:0 0 8px;font-size:13px;font-weight:700;}
+.progress-track{height:8px;background:var(--bg);border-radius:999px;overflow:hidden;
+  border:1px solid var(--line);}
+.progress-fill{height:100%;background:var(--accent);width:0%;transition:width .2s ease;}
+.progress-meta{display:flex;justify-content:space-between;margin-top:6px;font-size:12px;
+  color:var(--muted);}
+.tabs{display:flex;gap:6px;margin-bottom:12px;}
+.tab{padding:6px 13px;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;color:var(--muted);}
+.tab.active{background:var(--accent-soft);color:var(--accent);}
+.stat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 14px;}
+.stat b{display:block;font-size:18px;}
+.signed-in { display:flex; align-items:center; gap:8px; padding:4px 10px;
+  border:1px solid var(--line); border-radius:999px; background:#fff; }
+.signed-in-label { color:var(--muted); font-size:12px; }
+.signed-in-name { font-weight:600; font-size:13px; }
+.link-button { background:none; border:none; color:var(--accent); cursor:pointer;
+  font-size:12px; padding:0; text-decoration:underline; }
+.link-button:hover { opacity:.75; }
+.download-row { display:flex; align-items:center; gap:8px; padding:3px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>{{ app_name }}</h1>
+  <span class="pill" id="issue-count">loading…</span>
+  <span class="pill" id="selection-count">0 selected</span>
+  <span class="spacer"></span>
+  <label class="muted" style="display:flex;align-items:center;gap:6px;margin:0;">
+    <input type="checkbox" id="auto-refresh" checked> Auto-refresh
+  </label>
+  <span class="muted" id="loaded-at"></span>
+  <button onclick="loadIssues(true)">Refresh now</button>
+  <span class="signed-in" id="signed-in-block" title="Every change you make is written to Jira under this person's account">
+    <span class="signed-in-label">Logged in as</span>
+    <span class="signed-in-name" id="signed-in-name">…</span>
+    <button class="link-button" onclick="signOut()">Switch user</button>
+  </span>
+</header>
+
+<div class="layout">
+  <aside class="panel">
+    <h2>Group by</h2>
+    <select id="group-by" onchange="render()">
+      <option value="tester">Tester</option>
+      <option value="platform">Platform</option>
+      <option value="instrument">Instrument</option>
+      <option value="action">Action</option>
+      <option value="status">Status</option>
+      <option value="parentSummary">Parent</option>
+      <option value="startDate">Start date</option>
+      <option value="assignee">Assignee</option>
+      <option value="none">No grouping</option>
+    </select>
+
+    <h2 style="margin-top:18px;">Filter</h2>
+    <input type="text" id="text-filter" placeholder="key, test name, platform…" oninput="render()">
+    <label>Status</label>
+    <select id="status-filter" onchange="render()"><option value="">Any</option></select>
+    <label>Tester</label>
+    <select id="tester-filter" onchange="render()"><option value="">Any</option></select>
+    <label>Action</label>
+    <select id="action-filter" onchange="render()"><option value="">Any</option></select>
+    <label>Due date from</label>
+    <input type="date" id="due-from-filter" onchange="render()">
+    <label>Due date to</label>
+    <input type="date" id="due-to-filter" onchange="render()">
+    <button style="width:100%;margin-top:10px;" onclick="resetFilters()">Reset filters</button>
+
+    <h2 style="margin-top:18px;">Select</h2>
+    <button style="width:100%;margin-bottom:6px;" onclick="selectAllVisible()">Select all visible</button>
+    <button style="width:100%;" onclick="clearSelection()">Clear selection</button>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('issues')" id="tab-issues">Issues</div>
+      <div class="tab" onclick="switchTab('todo')" id="tab-todo">To do</div>
+      <div class="tab" onclick="switchTab('bulk')" id="tab-bulk">Bulk update</div>
+      <div class="tab" onclick="switchTab('comments')" id="tab-comments">Latest comments</div>
+      <div class="tab" onclick="switchTab('emails')" id="tab-emails">Emails</div>
+      <div class="tab" onclick="switchTab('compliance')" id="tab-compliance">Compliance</div>
+      <div class="tab" onclick="switchTab('dev-defects')" id="tab-dev-defects">Dev Defects</div>
+      <div class="tab" onclick="switchTab('export')" id="tab-export">Export</div>
+    </div>
+
+    <div id="view-compliance" style="display:none;">
+      <div class="panel">
+        <h2>Compliance rules <span class="muted" id="compliance-scope"></span></h2>
+        <div class="stat-row" id="compliance-stats"></div>
+        <div style="display:grid;grid-template-columns:1fr 180px 180px auto auto;gap:12px;margin:6px 0 12px;">
+          <input type="text" id="compliance-filter" placeholder="Filter by rule, key or assignee…"
+                 oninput="renderCompliance()">
+          <select id="compliance-status" onchange="renderCompliance()">
+            <option value="">Any status</option></select>
+          <select id="compliance-group" onchange="renderCompliance()">
+            <option value="status">Group by status</option>
+            <option value="assignee">Group by assignee</option>
+            <option value="none">No grouping</option></select>
+          <button class="primary" onclick="exportComplianceCsv()">Export CSV</button>
+          <button onclick="generateComplianceEmail(this)">Generate Compliance Summary</button>
+        </div>
+        <div style="max-height:72vh;overflow:auto;" id="compliance-list"></div>
+      </div>
+    </div>
+
+    <div id="view-dev-defects" style="display:none;">
+      <div class="panel">
+        <h2>Dev Defects <span class="muted" id="dev-defects-scope"></span></h2>
+        <div class="stat-row" id="dev-defects-stats"></div>
+        <div style="display:grid;grid-template-columns:1fr 200px 200px;gap:12px;margin:6px 0 12px;">
+          <input type="text" id="dev-defects-filter" placeholder="Filter by defect, key or assignee…"
+                 oninput="renderDevDefects()">
+          <select id="dev-defects-status" onchange="renderDevDefects()">
+            <option value="">Any status</option></select>
+          <select id="dev-defects-group" onchange="renderDevDefects()">
+            <option value="status">Group by status</option>
+            <option value="assignee">Group by assignee</option>
+            <option value="priority">Group by priority</option>
+            <option value="none">No grouping</option></select>
+        </div>
+        <div style="max-height:72vh;overflow:auto;" id="dev-defects-list"></div>
+      </div>
+    </div>
+
+    <div id="view-export" style="display:none;">
+      <div class="panel">
+        <h2>UAT status export</h2>
+        <p class="muted" style="margin:0 0 12px;">
+          Pulled straight from Jira. One row per tester per UAT test case, with the
+          planned and actual dates, the written test case, the current status and result,
+          the latest comment, and for blocked cases the linked defect or action item. No
+          input file, so it always shows the live state. The file downloads as soon as it
+          is built.</p>
+
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="primary" onclick="runExport()" id="export-button">
+            Generate export</button>
+        </div>
+        <div id="export-results" style="margin-top:14px;"></div>
+      </div>
+    </div>
+
+    <div id="view-todo" style="display:none;">
+      <div class="panel">
+        <h2>Blocked work with no defect or action item linked</h2>
+        <p class="muted" style="margin:0 0 8px;">
+          Every blocked item should say <i>why</i> it is blocked, with an open defect or
+          action item under the UAT Defects epic. These don't.</p>
+        <label>Show</label>
+        <select id="todo-view" onchange="renderTodo()">
+          <option value="needs">Blocked with nothing linked (needs action)</option>
+          <option value="covered">Blocked, covered by a defect or action item</option>
+          <option value="stale">Blocked, linked item does not count (closed or outside the epic)</option>
+          <option value="all">All blocked items</option>
+          <option value="all-items">All items (any status)</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:8px;margin:10px 0 0;">
+          <input type="checkbox" id="todo-apply-filters" onchange="renderTodo()">
+          Apply the sidebar filters
+          <span class="muted">(off by default so the date filter doesn't hide
+          anything)</span>
+        </label>
+        <div class="stat-row" id="todo-stats"></div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <button onclick="selectAllTodo()">Select all shown</button>
+          <button onclick="clearTodoSelection()">Clear selection</button>
+          <span class="muted" style="align-self:center;" id="todo-selection-note"></span>
+        </div>
+        <div style="max-height:72vh;overflow:auto;" id="todo-list"></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px;">
+        <h2>Link a defect or action item</h2>
+        <label>Existing item <span class="muted" id="todo-bug-scope"></span></label>
+        <select id="todo-bug-select"><option value="">Loading…</option></select>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="primary" onclick="openLinkBugConfirm()" id="todo-link-button">
+            Link to selected items</button>
+          <button onclick="loadBugs()">Reload list</button>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:14px;">
+        <h2>Or raise a new one</h2>
+        <div style="display:grid;grid-template-columns:180px 1fr;gap:12px;">
+          <div><label>Type</label>
+            <select id="todo-new-bug-type">
+              <option>Bug</option><option>Action Item</option></select></div>
+          <div><label>Summary</label>
+            <input type="text" id="todo-new-bug-summary"
+                   placeholder="Order gateway unavailable"></div>
+        </div>
+        <label>Description (optional)</label>
+        <textarea id="todo-new-bug-description"
+                  placeholder="The order gateway is not accepting orders. Raised during UAT."></textarea>
+        <div class="warnbox">Creates one new item under the UAT Defects epic and links it to
+          the items you have <b>selected</b> above. It does not create one per item.</div>
+        <button class="primary" id="todo-create-button" onclick="openCreateBugConfirm()">
+          Create and link</button>
+        <div id="todo-results" style="margin-top:14px;"></div>
+      </div>
+    </div>
+
+    <div id="view-bulk" style="display:none;">
+      <div class="panel">
+        <h2>1 &middot; Choose what to update</h2>
+        <label>Search test name and test case steps
+          <span class="muted">(e.g. "gateway" finds everything that depends on it)</span></label>
+        <input type="text" id="bulk-search" placeholder="gateway" oninput="renderBulkMatches()">
+        <p class="muted" style="margin:10px 0 0;">
+          Platform, Instrument and Type take more than one selection. Hold Ctrl (or Shift for a
+          range). Leave a box untouched to mean "all".</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div><label>Platform</label>
+            <select id="bulk-platform" multiple size="6" onchange="renderBulkMatches()"></select></div>
+          <div><label>Instrument</label>
+            <select id="bulk-instrument" multiple size="6" onchange="renderBulkMatches()"></select></div>
+          <div><label>Type (action)</label>
+            <select id="bulk-action" multiple size="6" onchange="renderBulkMatches()"></select></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:10px;">
+          <div><label>Area (epic)</label>
+            <select id="bulk-epic" onchange="renderBulkMatches()"><option value="">All areas</option></select></div>
+          <div><label>Tester</label>
+            <select id="bulk-tester" onchange="renderBulkMatches()"><option value="">All testers</option></select></div>
+          <div><label>Status from</label>
+            <select id="bulk-status-from" onchange="renderBulkMatches()"><option value="">Any status</option></select></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div><label>Due date from</label><input type="date" id="bulk-due-from" onchange="renderBulkMatches()"></div>
+          <div><label>Due date to</label><input type="date" id="bulk-due-to" onchange="renderBulkMatches()"></div>
+        </div>
+        <div style="margin-top:10px;">
+          <button onclick="resetBulkFilters()">Reset</button>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:14px;">
+        <h2>2 &middot; What will change</h2>
+        <div id="bulk-match-summary" class="stat-row"></div>
+        <div id="bulk-match-list" style="max-height:65vh;overflow:auto;"></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px;">
+        <h2>3 &middot; Apply</h2>
+        <label>Add a comment (leave blank to skip)</label>
+        <textarea id="bulk-comment"
+          placeholder="Testers are unable to trade today because the order gateway is down."></textarea>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+          <div><label>Status to (leave blank to skip)</label>
+            <select id="bulk-status-to">
+              <option value="">No status change</option>
+              <option>Blocked</option><option>Testing Failed</option><option>In Progress</option>
+              <option>UAT</option><option>RETEST</option><option>To Do</option>
+              <option>Done</option><option>Closed</option><option value="WONT DO">Won't Do</option>
+            </select></div>
+          <div style="display:flex;align-items:flex-end;">
+            <button class="primary" style="width:100%;" onclick="openBulkConfirm()"
+              id="bulk-apply-button">Review and apply…</button></div>
+        </div>
+        <div class="warnbox" id="bulk-guard-note">
+          If "Status from" is set, only items currently in that status get moved. Anything
+          else is reported as skipped and left alone.
+        </div>
+        <div id="bulk-results"></div>
+      </div>
+    </div>
+
+    <div id="view-issues">
+      <div class="stat-row" id="stat-row"></div>
+      <div class="panel" id="groups"></div>
+    </div>
+
+    <div id="view-comments" style="display:none;">
+      <div class="panel">
+        <h2>Most recently commented</h2>
+        <table id="comment-table"><tbody></tbody></table>
+      </div>
+    </div>
+
+    <div id="view-emails" style="display:none;">
+      <div class="panel">
+        <h2>Generate tester emails</h2>
+        <div class="warnbox">
+          Items with status <b id="excluded-list">Blocked / Testing Failed</b> are excluded
+          automatically. Each draft downloads as a .eml file that opens in Outlook ready to
+          review and send. Nothing gets sent from here.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div><label>Start date from</label><input type="date" id="email-start"></div>
+          <div><label>Start date to</label><input type="date" id="email-end"></div>
+        </div>
+        <label>Testers (none selected = all)</label>
+        <select id="email-testers" multiple size="8"></select>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button onclick="previewEmails()">Preview</button>
+          <button class="primary" onclick="generateEmails()">Generate drafts</button>
+        </div>
+        <div id="email-results" style="margin-top:14px;"></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px;">
+        <h2>Status summary email</h2>
+        <p class="muted" style="margin:0 0 10px;">
+          One management email: totals for completed, outstanding, blocked and failed,
+          broken down by due date and by tester. Uses the same date range as above.</p>
+        <label>Send to (comma separated)</label>
+        <input type="text" id="summary-recipients"
+               placeholder="team-leads@example.com">
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button onclick="previewSummary()">Preview summary</button>
+          <button class="primary" onclick="createSummaryEmail()">Create summary email</button>
+        </div>
+        <div id="summary-results" style="margin-top:14px;"></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px;">
+        <h2>Test cases by tester</h2>
+        <p class="muted" style="margin:0 0 10px;">
+          One email listing every test case grouped by tester, with the test case,
+          platform, status, due date and any linked defect.</p>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="primary" onclick="generateBreakdownEmail(this)">Generate breakdown email</button>
+          <button onclick="generateBreakdownCsv(this)">Export CSV</button>
+        </div>
+        <div id="breakdown-results" style="margin-top:14px;"></div>
+      </div>
+    </div>
+
+    <div class="actionbar" id="actionbar">
+      <b id="actionbar-label">Nothing selected</b>
+      <span class="spacer"></span>
+      <button onclick="openCommentModal()" id="btn-comment">Add comment…</button>
+      <button onclick="openStatusModal()" id="btn-status">Change status…</button>
+      <button onclick="openDatesModal()" id="btn-dates">Set dates…</button>
+      <button onclick="openAssignModal()" id="btn-assign">Assign to testers…</button>
+    </div>
+  </main>
+</div>
+
+<div id="modal-root"></div>
+
+<script>
+let allIssues = [], testers = [], selectedKeys = new Set();
+// Set once on first load, so hitting Refresh does not undo a date you cleared by hand.
+let dateFilterInitialised = false;
+
+// Poll infrequently, and only when the user is idle - a refresh that rebuilds the tables
+// mid-click is disruptive. "Refresh now" is always there for an immediate update.
+const POLL_INTERVAL_MILLISECONDS = 180000;      // check every 3 minutes
+const IDLE_BEFORE_POLL_MILLISECONDS = 20000;    // ...but only after 20s of no interaction
+let lastLoadedAt = null;
+let lastInteractionAt = Date.now();
+
+// Any click, keypress or field change counts as the user being busy; capture-phase so it
+// registers even when the target stops propagation.
+['click', 'input', 'change', 'keydown'].forEach(eventName =>
+  document.addEventListener(eventName, () => { lastInteractionAt = Date.now(); }, true));
+
+// Everything the page does is done as the signed-in user, so show who that is and
+// send anyone whose session has lapsed back to the log-in screen.
+async function loadSignedInUser() {
+  try {
+    const response = await fetch('/api/session');
+    const result = await response.json();
+    if (!result.user) { window.location = '/login'; return; }
+    document.getElementById('signed-in-name').textContent = result.user.name;
+    document.getElementById('signed-in-block').title =
+      `Changes are written to Jira as ${result.user.name} (${result.user.email})`;
+  } catch (error) {
+    document.getElementById('signed-in-name').textContent = 'unknown';
+  }
+}
+
+async function signOut() {
+  await fetch('/api/session', { method: 'DELETE' });
+  window.location = '/login';
+}
+
+// A 401 means the session went away underneath us - go and sign in again rather than
+// showing an error the user cannot act on.
+function redirectIfSignedOut(payload) {
+  if (payload && payload.signedOut) { window.location = '/login'; return true; }
+  return false;
+}
+
+async function loadIssues(forceRefresh, isBackgroundPoll) {
+  if (!isBackgroundPoll) document.getElementById('issue-count').textContent = 'loading…';
+  let payload;
+  try {
+    const response = await fetch('/api/issues' + (forceRefresh ? '?refresh=true' : ''));
+    payload = await response.json();
+  } catch (error) {
+    // A dropped poll should not blow away the view; the next tick will retry.
+    document.getElementById('loaded-at').textContent = 'refresh failed, retrying…';
+    return;
+  }
+  if (redirectIfSignedOut(payload)) return;
+  if (payload.error) {
+    if (!isBackgroundPoll) alert('Failed to load: ' + payload.error);
+    return;
+  }
+
+  const previousStatuses = new Map(allIssues.map(issue => [issue.key, issue.status]));
+  allIssues = payload.issues;
+  testers = payload.testers;
+  lastLoadedAt = payload.loadedAt;
+
+  document.getElementById('issue-count').textContent = allIssues.length + ' tester items';
+  document.getElementById('excluded-list').textContent = payload.excludedStatuses.join(' / ');
+  populateFilters();
+  if (!dateFilterInitialised) {
+    applyDefaultDateFilter();
+    dateFilterInitialised = true;
+  }
+  // A background poll must not move the page under the user's cursor.
+  const scrollPosition = window.scrollY;
+  render();
+  if (isBackgroundPoll) window.scrollTo(0, scrollPosition);
+  showFreshness(previousStatuses);
+}
+
+function showFreshness(previousStatuses) {
+  let changedCount = 0;
+  if (previousStatuses && previousStatuses.size) {
+    for (const issue of allIssues) {
+      const before = previousStatuses.get(issue.key);
+      if (before !== undefined && before !== issue.status) changedCount++;
+    }
+  }
+  const label = document.getElementById('loaded-at');
+  label.textContent = changedCount
+    ? `updated ${lastLoadedAt}, ${changedCount} status change${changedCount === 1 ? '' : 's'}`
+    : `updated ${lastLoadedAt}`;
+  label.style.color = changedCount ? 'var(--ok)' : '';
+}
+
+function pollForUpdates() {
+  if (!document.getElementById('auto-refresh').checked) return;
+  // A refresh mid-write would rebuild the tables underneath the batch that is running.
+  if (writeInProgress) return;
+  // Never refresh underneath an open dialog - the confirmation lists items by key and
+  // must describe the same set the user is about to write to.
+  if (document.getElementById('modal-root').innerHTML.trim()) return;
+  if (document.hidden) return;
+  // Hold off while the user is actively clicking through the page, or has a selection on
+  // either tab that a rebuild might disturb.
+  if (Date.now() - lastInteractionAt < IDLE_BEFORE_POLL_MILLISECONDS) return;
+  if (selectedKeys.size || todoSelectedKeys.size) return;
+  loadIssues(false, true);
+}
+
+setInterval(pollForUpdates, POLL_INTERVAL_MILLISECONDS);
+
+function uniqueValues(fieldName) {
+  return [...new Set(allIssues.map(i => i[fieldName]).filter(Boolean))].sort();
+}
+
+function todayAsIsoDate() {
+  // Local date, not UTC - toISOString() would roll over a day for Australian users.
+  const now = new Date();
+  return [now.getFullYear(),
+          String(now.getMonth() + 1).padStart(2, '0'),
+          String(now.getDate()).padStart(2, '0')].join('-');
+}
+
+function applyDefaultDateFilter() {
+  // Open on everything due up to and including today - the work that is due or overdue.
+  // 'From' stays blank so nothing earlier is hidden. Deliberately NOT applied to the Bulk
+  // update tab: a date filter on by default there would silently narrow a bulk write.
+  document.getElementById('due-from-filter').value = '';
+  document.getElementById('due-to-filter').value = todayAsIsoDate();
+}
+
+function populateFilters() {
+  const fill = (id, values) => document.getElementById(id).innerHTML =
+    '<option value="">Any</option>' + values.map(v => `<option>${v}</option>`).join('');
+  fill('status-filter', uniqueValues('status'));
+  fill('tester-filter', uniqueValues('tester'));
+  fill('action-filter', uniqueValues('action'));
+  document.getElementById('email-testers').innerHTML = testers.map(t =>
+    `<option value="${t.name}">${t.name}${t.confirmed ? '' : '  (unconfirmed)'}</option>`).join('');
+  populateBulkFilters();
+}
+
+function visibleIssues() {
+  const searchText = document.getElementById('text-filter').value.trim().toLowerCase();
+  const statusWanted = document.getElementById('status-filter').value;
+  const testerWanted = document.getElementById('tester-filter').value;
+  const actionWanted = document.getElementById('action-filter').value;
+  const dueFrom = document.getElementById('due-from-filter').value;
+  const dueTo = document.getElementById('due-to-filter').value;
+  return allIssues.filter(issue => {
+    if (statusWanted && issue.status !== statusWanted) return false;
+    if (testerWanted && issue.tester !== testerWanted) return false;
+    if (actionWanted && issue.action !== actionWanted) return false;
+    // Dates are ISO (YYYY-MM-DD), so plain string comparison orders them correctly.
+    // An item with no due date cannot satisfy a date bound, so it drops out.
+    if (dueFrom && (!issue.dueDate || issue.dueDate < dueFrom)) return false;
+    if (dueTo && (!issue.dueDate || issue.dueDate > dueTo)) return false;
+    if (searchText) {
+      const haystack = [issue.key, issue.testName, issue.platform, issue.instrument,
+                        issue.action, issue.tester, issue.assignee, issue.parentSummary]
+                        .join(' ').toLowerCase();
+      if (!haystack.includes(searchText)) return false;
+    }
+    return true;
+  });
+}
+
+function groupKeyFor(issue, groupBy) {
+  if (groupBy === 'none') return 'All items';
+  return issue[groupBy] || '(none)';
+}
+
+function render() {
+  const groupBy = document.getElementById('group-by').value;
+  const issues = visibleIssues();
+
+  const statusCounts = {};
+  for (const issue of issues) statusCounts[issue.status] = (statusCounts[issue.status] || 0) + 1;
+  document.getElementById('stat-row').innerHTML =
+    `<div class="stat"><b>${issues.length}</b><span class="muted">shown</span></div>` +
+    Object.entries(statusCounts).sort((a, b) => b[1] - a[1]).map(([status, count]) =>
+      `<div class="stat"><b>${count}</b><span class="muted">${status}</span></div>`).join('');
+
+  const groups = {};
+  for (const issue of issues) (groups[groupKeyFor(issue, groupBy)] ||= []).push(issue);
+
+  document.getElementById('groups').innerHTML = Object.keys(groups).sort().map(groupName => {
+    const rows = groups[groupName].map(issue => `
+      <tr class="${selectedKeys.has(issue.key) ? 'selected' : ''}" onclick="toggleSelection('${issue.key}',event)">
+        <td><input type="checkbox" ${selectedKeys.has(issue.key) ? 'checked' : ''}
+             onclick="event.stopPropagation();toggleSelection('${issue.key}',event)"></td>
+        <td><a href="${issue.url}" target="_blank" onclick="event.stopPropagation()">${issue.key}</a></td>
+        <td>${escapeHtml(issue.testName)}
+            <div class="muted">${issue.platform}${issue.tester ? ' · ' + issue.tester : ''}</div></td>
+        <td><span class="status ${issue.statusCategory}">${issue.status}</span></td>
+        <td class="muted">${issue.assignee}</td>
+        <td class="muted">${issue.startDate || ''}<div class="muted">${issue.dueDate || ''}</div></td>
+        <td class="muted">${issue.commentCount ? issue.commentCount + ' 💬' : ''}
+            ${issue.attachmentCount ? issue.attachmentCount + ' 📎' : ''}</td>
+      </tr>`).join('');
+    return `<div class="group">
+      <div class="group-head" onclick="toggleGroupSelection('${encodeURIComponent(groupName)}')">
+        <span>${escapeHtml(groupName)}</span><span class="count">${groups[groupName].length}</span>
+        <span class="spacer"></span><span class="muted">click to select group</span>
+      </div>
+      <table><thead><tr><th></th><th>Key</th><th>Test</th><th>Status</th><th>Assignee</th>
+      <th>Start / Due</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }).join('') || '<p class="muted">Nothing matches the filter.</p>';
+
+  renderCommentsView();
+  renderTodo();
+  updateSelectionUi();
+}
+
+function escapeHtml(text) {
+  return (text || '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+}
+
+function renderCommentsView() {
+  const withComments = allIssues.filter(i => i.commentCount > 0)
+    .sort((a, b) => (b.latestCommentDate || '').localeCompare(a.latestCommentDate || ''));
+  document.querySelector('#comment-table tbody').innerHTML = withComments.length
+    ? withComments.map(issue => `<tr>
+        <td><a href="${issue.url}" target="_blank">${issue.key}</a>
+            <div class="muted">${escapeHtml(issue.testName)}</div>
+            <div class="muted">${issue.tester}</div></td>
+        <td style="width:60%"><b>${escapeHtml(issue.latestCommentAuthor)}</b>
+          <span class="muted">${(issue.latestCommentDate || '').slice(0, 10)}</span>
+          <div>${escapeHtml(issue.latestCommentBody)}</div></td>
+        <td class="muted">${issue.commentCount} total</td></tr>`).join('')
+    : '<tr><td class="muted">No items have comments yet.</td></tr>';
+}
+
+function toggleSelection(issueKey, event) {
+  if (event) event.stopPropagation();
+  selectedKeys.has(issueKey) ? selectedKeys.delete(issueKey) : selectedKeys.add(issueKey);
+  render();
+}
+
+function toggleGroupSelection(encodedName) {
+  const groupName = decodeURIComponent(encodedName);
+  const groupBy = document.getElementById('group-by').value;
+  const members = visibleIssues().filter(i => groupKeyFor(i, groupBy) === groupName);
+  const allSelected = members.every(i => selectedKeys.has(i.key));
+  members.forEach(i => allSelected ? selectedKeys.delete(i.key) : selectedKeys.add(i.key));
+  render();
+}
+
+function resetFilters() {
+  ['text-filter', 'status-filter', 'tester-filter', 'action-filter',
+   'due-from-filter', 'due-to-filter'].forEach(id => document.getElementById(id).value = '');
+  render();
+}
+
+function selectAllVisible() { visibleIssues().forEach(i => selectedKeys.add(i.key)); render(); }
+function clearSelection() { selectedKeys.clear(); render(); }
+
+function updateSelectionUi() {
+  const count = selectedKeys.size;
+  document.getElementById('selection-count').textContent = count + ' selected';
+  document.getElementById('actionbar-label').textContent =
+    count ? `${count} item${count === 1 ? '' : 's'} selected` : 'Nothing selected';
+  ['btn-comment', 'btn-status', 'btn-dates', 'btn-assign'].forEach(id =>
+    document.getElementById(id).disabled = count === 0);
+}
+
+// ---------------------------------------------------------------------- to do tab
+
+function todoSource() {
+  // The sidebar defaults to "due on or before today", which would silently hide
+  // future-dated blocked work - exactly what this tab exists to surface - so the
+  // filters are opt-in here.
+  return document.getElementById('todo-apply-filters').checked ? visibleIssues() : allIssues;
+}
+
+function todoItems() {
+  const view = document.getElementById('todo-view').value;
+  if (view === 'all-items') return todoSource();
+  const blocked = todoSource().filter(issue => issue.isBlocked);
+  if (view === 'covered') return blocked.filter(i => i.coveringBugs.length);
+  if (view === 'stale') return blocked.filter(i => i.hasStaleBugLink && i.linkedBugs.length);
+  if (view === 'all') return blocked;
+  return blocked.filter(i => i.needsBug);
+}
+
+// Kept separate from the Issues tab selection so the two cannot interfere.
+let todoSelectedKeys = new Set();
+
+function toggleTodoSelection(issueKey, event) {
+  if (event) event.stopPropagation();
+  todoSelectedKeys.has(issueKey)
+    ? todoSelectedKeys.delete(issueKey) : todoSelectedKeys.add(issueKey);
+  renderTodo();
+}
+
+function toggleTodoGroup(encodedEpic) {
+  const epic = decodeURIComponent(encodedEpic);
+  const members = todoItems().filter(i => (i.parentSummary || '(no epic)') === epic);
+  const allSelected = members.every(i => todoSelectedKeys.has(i.key));
+  members.forEach(i => allSelected
+    ? todoSelectedKeys.delete(i.key) : todoSelectedKeys.add(i.key));
+  renderTodo();
+}
+
+function selectAllTodo() {
+  todoItems().forEach(i => todoSelectedKeys.add(i.key));
+  renderTodo();
+}
+
+function clearTodoSelection() {
+  todoSelectedKeys.clear();
+  renderTodo();
+}
+
+function todoTargets() {
+  // Only ever act on items currently shown, so a stale selection left over from another
+  // view cannot be written to by accident.
+  const shown = new Set(todoItems().map(i => i.key));
+  return [...todoSelectedKeys].filter(key => shown.has(key));
+}
+
+function defectCellHtml(issue) {
+  if (issue.coveringBugs.length) {
+    return issue.coveringBugs.map((key, index) =>
+      `<a href="${issue.url.replace(/\/browse\/.*$/, '/browse/' + key)}" target="_blank"
+         style="color:var(--ok);">${key}</a>
+       <div class="muted">${escapeHtml(issue.coveringBugSummaries[index] || '')}</div>`).join('');
+  }
+  if (issue.linkedBugs.length) {
+    return `<span class="muted">${issue.linkedBugs.join(', ')}</span>
+            <div style="color:var(--warn);font-size:11px;">closed or outside the epic</div>`;
+  }
+  // A blocked item with nothing linked is a gap (red); an unblocked one simply has none.
+  return issue.isBlocked
+    ? '<span style="color:var(--danger);font-weight:600;">none</span>'
+    : '<span class="muted">-</span>';
+}
+
+function renderTodo() {
+  const items = todoItems();
+  const byTester = {}, byAction = {};
+  for (const issue of items) {
+    byTester[issue.tester || 'unknown'] = (byTester[issue.tester || 'unknown'] || 0) + 1;
+    byAction[issue.action || '(none)'] = (byAction[issue.action || '(none)'] || 0) + 1;
+  }
+
+  const allBlocked = allIssues.filter(i => i.isBlocked);
+  const covered = allBlocked.filter(i => i.coveringBugs.length).length;
+  const stale = allBlocked.filter(i => i.hasStaleBugLink && i.linkedBugs.length).length;
+  const needs = allBlocked.filter(i => i.needsBug).length;
+  const percent = allBlocked.length
+    ? Math.round((covered / allBlocked.length) * 100) : 0;
+
+  document.getElementById('todo-stats').innerHTML =
+    `<div class="stat"><b>${items.length}</b><span class="muted">shown</span></div>
+     <div class="stat"><b>${allBlocked.length}</b><span class="muted">blocked overall</span></div>
+     <div class="stat"><b style="color:var(--ok);">${covered}</b><span class="muted">covered (${percent}%)</span></div>
+     <div class="stat"><b style="color:var(--danger);">${needs}</b><span class="muted">need a defect</span></div>
+     ${stale ? `<div class="stat"><b style="color:var(--warn);">${stale}</b><span class="muted">stale link</span></div>` : ''}
+     <div class="stat"><b>${Object.keys(byTester).length}</b><span class="muted">testers</span></div>`;
+
+  const byEpic = {};
+  for (const issue of items) {
+    (byEpic[issue.parentSummary || '(no epic)'] ||= []).push(issue);
+  }
+
+  document.getElementById('todo-list').innerHTML = items.length
+    ? Object.keys(byEpic).sort().map(epic => `
+        <div class="group">
+          <div class="group-head" onclick="toggleTodoGroup('${encodeURIComponent(epic)}')">
+            <span>${escapeHtml(epic)}</span>
+            <span class="count">${byEpic[epic].length}</span>
+            <span class="spacer"></span>
+            <span class="muted">click to select group</span></div>
+          <table><thead><tr><th></th><th>Key</th><th>Test</th><th>Status</th><th>Defect</th>
+            <th>Tester</th><th>Due</th></tr></thead><tbody>
+          ${byEpic[epic].map(issue => `<tr
+              class="${todoSelectedKeys.has(issue.key) ? 'selected' : ''}"
+              onclick="toggleTodoSelection('${issue.key}', event)">
+            <td><input type="checkbox" ${todoSelectedKeys.has(issue.key) ? 'checked' : ''}
+                 onclick="event.stopPropagation();toggleTodoSelection('${issue.key}', event)"></td>
+            <td><a href="${issue.url}" target="_blank"
+                   onclick="event.stopPropagation()">${issue.key}</a></td>
+            <td>${escapeHtml(issue.testName)}
+                <div class="muted">${issue.platform}${issue.action ? ' · ' + escapeHtml(issue.action) : ''}</div></td>
+            <td><span class="status ${issue.statusCategory}">${issue.status}</span></td>
+            <td>${defectCellHtml(issue)}</td>
+            <td class="muted">${issue.tester}</td>
+            <td class="muted">${issue.dueDate || ''}</td></tr>`).join('')}
+          </tbody></table></div>`).join('')
+    : '<p class="muted">Nothing matches this view.</p>';
+
+  const targets = todoTargets();
+  document.getElementById('todo-selection-note').textContent = targets.length
+    ? `${targets.length} selected`
+    : 'nothing selected (select items to enable linking)';
+  document.getElementById('todo-link-button').disabled = targets.length === 0;
+  document.getElementById('todo-link-button').textContent =
+    targets.length ? `Link defect to ${targets.length} selected item(s)` : 'Link defect';
+  const createButton = document.getElementById('todo-create-button');
+  if (createButton) {
+    createButton.disabled = targets.length === 0;
+    createButton.textContent = targets.length
+      ? `Create bug and link to ${targets.length} item(s)` : 'Create bug and link';
+  }
+}
+
+async function loadBugs() {
+  const select = document.getElementById('todo-bug-select');
+  select.innerHTML = '<option value="">Loading…</option>';
+  const response = await fetch('/api/bugs');
+  const result = await response.json();
+  if (result.error) { select.innerHTML = '<option value="">Failed to load</option>'; return; }
+  select.innerHTML = result.bugs.length
+    ? '<option value="">Choose a defect or action item…</option>' + result.bugs.map(bug =>
+        `<option value="${bug.key}">${bug.key}: ${escapeHtml(bug.summary)} `
+        + `[${bug.issueType || 'Bug'} · ${bug.status}]</option>`
+      ).join('')
+    : '<option value="">Nothing open under the epic yet. Raise one below.</option>';
+  document.getElementById('todo-bug-scope').textContent =
+    (result.epicKey ? `(open items under ${result.epicKey} only)` : '(no defects epic configured)') +
+    (result.closedCount ? ` (${result.closedCount} closed, hidden)` : '');
+}
+
+function openLinkBugConfirm() {
+  const targetKeys = todoTargets();
+  const bugKey = document.getElementById('todo-bug-select').value;
+  if (!bugKey) { alert('Choose a defect first.'); return; }
+  if (!targetKeys.length) { alert('Select some items first.'); return; }
+
+  const selected = allIssues.filter(i => targetKeys.includes(i.key));
+  const testers = [...new Set(selected.map(i => i.tester).filter(Boolean))];
+  showModal(`<h3>Link ${bugKey} to ${targetKeys.length} selected item(s)?</h3>
+    <p class="muted">Creates a "Blocks" link: ${bugKey} blocks each item.</p>
+    <div style="max-height:110px;overflow:auto;margin:8px 0;">
+      ${targetKeys.sort().map(k => `<span class="chip">${k}</span>`).join('')}</div>
+    <div class="warnbox">Affects ${testers.length} tester(s): ${testers.join(', ') || 'none'}.</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeModal()">Cancel</button>
+      <button class="primary" onclick="submitLinkBug('${bugKey}')">Link now</button></div>`);
+}
+
+async function submitLinkBug(bugKey) {
+  const targetKeys = todoTargets();
+  await runAction('/api/bugs/link',
+    { issueKeys: targetKeys, bugKey }, `Linked ${bugKey}`);
+  todoSelectedKeys.clear();
+  renderTodo();
+}
+
+function openCreateBugConfirm() {
+  const summary = document.getElementById('todo-new-bug-summary').value.trim();
+  if (!summary) { alert('Enter a summary first.'); return; }
+  const targetKeys = todoTargets();
+  if (!targetKeys.length) { alert('Select some items first.'); return; }
+  const issueType = document.getElementById('todo-new-bug-type').value;
+
+  showModal(`<h3>Create a ${issueType} and link ${targetKeys.length} selected item(s)?</h3>
+    <p><b>${escapeHtml(summary)}</b></p>
+    <div class="warnbox">Creates one new ${issueType} under the UAT Defects epic, then links
+      it to the ${targetKeys.length} selected items. It does not create one per item.</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeModal()">Cancel</button>
+      <button class="primary" onclick="submitCreateBug()">Create and link</button></div>`);
+}
+
+async function submitCreateBug() {
+  const summary = document.getElementById('todo-new-bug-summary').value.trim();
+  const description = document.getElementById('todo-new-bug-description').value.trim();
+  const issueType = document.getElementById('todo-new-bug-type').value;
+  showModal(`<h3>Creating ${issueType}…</h3><p class="muted">Please wait.</p>`);
+
+  const createResponse = await fetch('/api/bugs/create', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ summary, description, issueType }),
+  });
+  const created = await createResponse.json();
+  if (created.error) {
+    showModal(`<h3>Failed to create</h3><p class="result-fail">${created.error}</p>
+      <button onclick="closeModal()">Close</button>`);
+    return;
+  }
+  document.getElementById('todo-results').innerHTML =
+    `<p class="result-ok">Created <a href="${created.url}" target="_blank">${created.key}</a></p>`;
+  await submitLinkBug(created.key);
+  await loadBugs();
+}
+
+// ---------------------------------------------------------------------- export tab
+
+// Fetch a generated file and hand it to the browser as a blob rather than pointing an
+// <a download> at it. A plain link is a navigation: when the session has lapsed the
+// browser quietly follows the redirect to the log-in page and saves nothing, which is
+// indistinguishable from the click doing nothing at all. Fetching lets us see what came
+// back and say so.
+async function saveGeneratedFile(downloadUrl, fileName) {
+  const response = await fetch(downloadUrl, { credentials: 'same-origin' });
+  const contentType = response.headers.get('Content-Type') || '';
+  if (response.status === 401 || response.redirected || contentType.startsWith('text/html')) {
+    window.location = '/login';
+    return;
+  }
+  if (!response.ok) throw new Error(`${response.status} fetching ${fileName}`);
+
+  const objectUrl = URL.createObjectURL(await response.blob());
+  const link = document.createElement('a');
+  link.href = objectUrl;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  // Revoked on a delay: revoking immediately can cancel a download that has not started.
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+}
+
+async function runExport() {
+  const button = document.getElementById('export-button');
+  const target = document.getElementById('export-results');
+  button.disabled = true;
+  target.innerHTML = '<p class="muted">Building export from Jira…</p>';
+
+  try {
+    const response = await fetch('/api/export', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}',
+    });
+    const result = await response.json();
+    if (redirectIfSignedOut(result)) return;
+    if (result.error) {
+      target.innerHTML = `<p class="result-fail">Failed: ${escapeHtml(String(result.error))}</p>`;
+      return;
+    }
+
+    target.innerHTML = `
+      <div class="stat-row">
+        <div class="stat"><b>${result.testCaseCount}</b><span class="muted">UAT test cases</span></div>
+        <div class="stat"><b>${result.rowCount}</b><span class="muted">tester rows</span></div>
+        <div class="stat"><b style="color:var(--danger);">${result.blockedCount}</b><span class="muted">blocked</span></div>
+        <div class="stat"><b>${result.defectCount}</b><span class="muted">defects</span></div>
+      </div>
+      <p class="result-ok">Exported ${result.testCaseCount} UAT test cases (${result.rowCount} tester rows) as at ${result.asOf}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+        <button class="primary" onclick="downloadExport('${result.downloadUrl}', '${result.fileName}')">⬇ Download ${result.fileName}</button>
+      </div>`;
+
+    // The point of pressing the button is to end up with the file, so start the download
+    // without making them click a second time.
+    await downloadExport(result.downloadUrl, result.fileName);
+  } catch (error) {
+    target.innerHTML = `<p class="result-fail">Failed: ${escapeHtml(String(error))}</p>`;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function downloadExport(downloadUrl, fileName) {
+  try {
+    await saveGeneratedFile(downloadUrl, fileName);
+  } catch (error) {
+    document.getElementById('export-results').insertAdjacentHTML(
+      'beforeend', `<p class="result-fail">Download failed: ${escapeHtml(String(error))}</p>`);
+  }
+}
+
+// ------------------------------------------------------------------- compliance tab
+
+let complianceItems = [];
+
+async function loadCompliance(forceRefresh) {
+  const list = document.getElementById('compliance-list');
+  list.innerHTML = '<p class="muted">Loading compliance rules from Jira…</p>';
+  const response = await fetch('/api/compliance' + (forceRefresh ? '?refresh=true' : ''));
+  const result = await response.json();
+  if (result.error) { list.innerHTML = `<p class="result-fail">${escapeHtml(String(result.error))}</p>`; return; }
+  complianceItems = result.items;
+  document.getElementById('compliance-scope').textContent =
+    result.epicKey
+      ? `(under ${result.epicKey}, excluding ${result.excludedStatuses.join(', ')})`
+      : '(no compliance epic configured in config/project.json)';
+  const statuses = [...new Set(complianceItems.map(i => i.status))].sort();
+  document.getElementById('compliance-status').innerHTML = '<option value="">Any status</option>'
+    + statuses.map(s => `<option>${s}</option>`).join('');
+  renderCompliance();
+}
+
+function complianceVisible() {
+  const term = document.getElementById('compliance-filter').value.trim().toLowerCase();
+  const status = document.getElementById('compliance-status').value;
+  return complianceItems.filter(item => {
+    if (status && item.status !== status) return false;
+    if (term && ![item.key, item.summary, item.assignee].join(' ').toLowerCase().includes(term))
+      return false;
+    return true;
+  });
+}
+
+function renderCompliance() {
+  const items = complianceVisible();
+  const done = items.filter(i => i.statusCategory === 'done').length;
+  const uat = items.filter(i => i.status === 'UAT').length;
+  const statusCounts = {};
+  for (const i of items) statusCounts[i.status] = (statusCounts[i.status] || 0) + 1;
+
+  document.getElementById('compliance-stats').innerHTML =
+    `<div class="stat"><b>${items.length}</b><span class="muted">shown</span></div>
+     <div class="stat"><b>${complianceItems.length}</b><span class="muted">rules in scope</span></div>
+     <div class="stat"><b class="ok" style="color:var(--ok);">${done}</b><span class="muted">signed off</span></div>
+     <div class="stat"><b>${uat}</b><span class="muted">in UAT</span></div>`;
+
+  const groupBy = document.getElementById('compliance-group').value;
+  const groups = {};
+  for (const item of items) {
+    const key = groupBy === 'none' ? 'All rules' : (item[groupBy] || '(none)');
+    (groups[key] ||= []).push(item);
+  }
+
+  document.getElementById('compliance-list').innerHTML = items.length
+    ? Object.keys(groups).sort().map(name => `
+        <div class="group">
+          <div class="group-head"><span>${escapeHtml(name)}</span>
+            <span class="count">${groups[name].length}</span></div>
+          <table><thead><tr><th>Key</th><th>Rule #</th><th>Rule name</th><th>Status</th>
+            <th>Assignee</th><th>Due</th></tr></thead><tbody>
+          ${groups[name].map(item => `<tr>
+            <td><a href="${item.url}" target="_blank">${item.key}</a></td>
+            <td>${escapeHtml(complianceRuleNumber(item.summary))}</td>
+            <td>${escapeHtml(item.summary)}</td>
+            <td><span class="status ${item.statusCategory}">${item.status}</span></td>
+            <td class="muted">${escapeHtml(item.assignee)}</td>
+            <td class="muted">${item.dueDate || ''}</td></tr>`).join('')}
+          </tbody></table></div>`).join('')
+    : '<p class="muted">No compliance rules match the filter.</p>';
+}
+
+// The compliance rule number is the code before the first underscore in the summary, e.g.
+// "100234_EXAMPLE RULE [MAX]" or "Simcorp - 100567_OTHER..." -> "100234"/"100567".
+// An optional "Simcorp - " prefix is stripped first. There is deliberately no loose fallback:
+// account codes like "ACCT01 - Compliance Rule Assignment" have no rule number and stay blank.
+function complianceRuleNumber(summary) {
+  const text = (summary || '').replace(/^\s*simcorp\s*-\s*/i, '');
+  const match = text.match(/(\d+)_/);
+  return match ? match[1] : '';
+}
+
+function csvCell(value) {
+  const text = value == null ? '' : String(value);
+  return /[",\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+}
+
+async function generateComplianceEmail(button) {
+  const original = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Generating…';
+  try {
+    const response = await fetch('/api/compliance/email',
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    const result = await response.json();
+    if (redirectIfSignedOut(result)) return;
+    if (result.error) { alert('Failed: ' + result.error); return; }
+    // The file lives on the server, so start the download rather than naming a path
+    // the user has no way of reaching.
+    window.location = result.downloadUrl;
+  } catch (error) {
+    alert('Failed: ' + error);
+  } finally {
+    button.disabled = false;
+    button.textContent = original;
+  }
+}
+
+function exportComplianceCsv() {
+  const items = complianceVisible();
+  if (!items.length) { alert('No compliance rules to export.'); return; }
+  const headers = ['Key', 'Compliance Rule', 'Rule Name', 'Status',
+                   'Assignee', 'Due Date', 'Updated', 'Link'];
+  const lines = items.map(item => [
+    item.key,
+    complianceRuleNumber(item.summary),
+    item.summary,
+    item.status,
+    item.assignee,
+    item.dueDate || '',
+    item.updated || '',
+    item.url,
+  ].map(csvCell).join(','));
+  // Prepend a UTF-8 BOM so Excel reads the encoding correctly, matching the other exports.
+  const csv = '﻿' + [headers.map(csvCell).join(','), ...lines].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'compliance_rules.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+// ------------------------------------------------------------------ dev defects tab
+
+let devDefectItems = [];
+
+async function loadDevDefects(forceRefresh) {
+  const list = document.getElementById('dev-defects-list');
+  list.innerHTML = '<p class="muted">Loading dev defects from Jira…</p>';
+  const response = await fetch('/api/dev-defects' + (forceRefresh ? '?refresh=true' : ''));
+  const result = await response.json();
+  if (result.error) { list.innerHTML = `<p class="result-fail">${escapeHtml(String(result.error))}</p>`; return; }
+  devDefectItems = result.items;
+  document.getElementById('dev-defects-scope').textContent = result.epicKey
+    ? `(under ${result.epicKey})`
+    : '(no dev defects epic configured in config/project.json)';
+  const statuses = [...new Set(devDefectItems.map(i => i.status))].sort();
+  document.getElementById('dev-defects-status').innerHTML = '<option value="">Any status</option>'
+    + statuses.map(s => `<option>${s}</option>`).join('');
+  renderDevDefects();
+}
+
+function devDefectsVisible() {
+  const term = document.getElementById('dev-defects-filter').value.trim().toLowerCase();
+  const status = document.getElementById('dev-defects-status').value;
+  return devDefectItems.filter(item => {
+    if (status && item.status !== status) return false;
+    if (term && ![item.key, item.summary, item.assignee].join(' ').toLowerCase().includes(term))
+      return false;
+    return true;
+  });
+}
+
+function renderDevDefects() {
+  const items = devDefectsVisible();
+  const closed = items.filter(i => i.statusCategory === 'done').length;
+  const open = items.length - closed;
+
+  document.getElementById('dev-defects-stats').innerHTML =
+    `<div class="stat"><b>${items.length}</b><span class="muted">shown</span></div>
+     <div class="stat"><b>${devDefectItems.length}</b><span class="muted">defects</span></div>
+     <div class="stat"><b class="ok" style="color:var(--ok);">${closed}</b><span class="muted">closed / done</span></div>
+     <div class="stat"><b>${open}</b><span class="muted">open</span></div>`;
+
+  const groupBy = document.getElementById('dev-defects-group').value;
+  const groups = {};
+  for (const item of items) {
+    const key = groupBy === 'none' ? 'All defects' : (item[groupBy] || '(none)');
+    (groups[key] ||= []).push(item);
+  }
+
+  document.getElementById('dev-defects-list').innerHTML = items.length
+    ? Object.keys(groups).sort().map(name => `
+        <div class="group">
+          <div class="group-head"><span>${escapeHtml(name)}</span>
+            <span class="count">${groups[name].length}</span></div>
+          <table><thead><tr><th>Key</th><th>Defect</th><th>Priority</th>
+            <th>Assignee</th><th>Status</th></tr></thead><tbody>
+          ${groups[name].map(item => `<tr>
+            <td><a href="${item.url}" target="_blank">${item.key}</a></td>
+            <td>${escapeHtml(item.summary)}</td>
+            <td class="muted">${escapeHtml(item.priority)}</td>
+            <td class="muted">${escapeHtml(item.assignee)}</td>
+            <td><span class="status ${item.statusCategory}">${item.status}</span></td></tr>`).join('')}
+          </tbody></table></div>`).join('')
+    : '<p class="muted">No dev defects match the filter.</p>';
+}
+
+function switchTab(tabName) {
+  ['issues', 'todo', 'bulk', 'comments', 'emails', 'compliance', 'dev-defects', 'export'].forEach(name => {
+    document.getElementById('view-' + name).style.display = name === tabName ? '' : 'none';
+    document.getElementById('tab-' + name).classList.toggle('active', name === tabName);
+  });
+  // The action bar drives the Issues tab's checkbox selection; the other tabs
+  // have their own controls, so it would be misleading there.
+  document.getElementById('actionbar').style.display = tabName === 'issues' ? '' : 'none';
+  if (tabName === 'bulk') renderBulkMatches();
+  if (tabName === 'todo') {
+    renderTodo();
+    if (!document.getElementById('todo-bug-select').value) loadBugs();
+  }
+  if (tabName === 'compliance' && !complianceItems.length) loadCompliance(false);
+  if (tabName === 'dev-defects' && !devDefectItems.length) loadDevDefects(false);
+}
+
+// ---------------------------------------------------------------- bulk update tab
+
+// Optional per-item selection. Empty means "act on everything matched".
+let bulkSelectedKeys = new Set();
+
+function bulkTargets() {
+  const matched = bulkMatches();
+  const selectedInView = matched.filter(issue => bulkSelectedKeys.has(issue.key));
+  return selectedInView.length ? selectedInView : matched;
+}
+
+function toggleBulkSelection(issueKey, event) {
+  if (event) event.stopPropagation();
+  bulkSelectedKeys.has(issueKey) ? bulkSelectedKeys.delete(issueKey)
+                                 : bulkSelectedKeys.add(issueKey);
+  renderBulkMatches();
+}
+
+function selectAllBulk() {
+  bulkMatches().forEach(issue => bulkSelectedKeys.add(issue.key));
+  renderBulkMatches();
+}
+
+function clearBulkSelection() {
+  bulkSelectedKeys.clear();
+  renderBulkMatches();
+}
+
+function populateBulkFilters() {
+  const fillSingle = (id, values, anyLabel) => document.getElementById(id).innerHTML =
+    `<option value="">${anyLabel}</option>` + values.map(v => `<option>${v}</option>`).join('');
+  const fillMulti = (id, values) => document.getElementById(id).innerHTML =
+    values.map(v => `<option>${v}</option>`).join('');
+
+  fillMulti('bulk-platform', uniqueValues('platform'));
+  fillMulti('bulk-instrument', uniqueValues('instrument'));
+  fillMulti('bulk-action', uniqueValues('action'));
+  fillSingle('bulk-epic', uniqueValues('parentSummary'), 'All areas');
+  fillSingle('bulk-tester', uniqueValues('tester'), 'All testers');
+  fillSingle('bulk-status-from', uniqueValues('status'), 'Any status');
+}
+
+function chosenValues(selectId) {
+  return [...document.getElementById(selectId).selectedOptions].map(option => option.value);
+}
+
+function bulkMatches() {
+  const platforms = chosenValues('bulk-platform');
+  const instruments = chosenValues('bulk-instrument');
+  const actions = chosenValues('bulk-action');
+  const epic = document.getElementById('bulk-epic').value;
+  const tester = document.getElementById('bulk-tester').value;
+  const statusFrom = document.getElementById('bulk-status-from').value;
+  const dueFrom = document.getElementById('bulk-due-from').value;
+  const dueTo = document.getElementById('bulk-due-to').value;
+  const searchText = document.getElementById('bulk-search').value.trim().toLowerCase();
+
+  return allIssues.filter(issue => {
+    // An empty multi-select means "no restriction on this field".
+    if (platforms.length && !platforms.includes(issue.platform)) return false;
+    if (instruments.length && !instruments.includes(issue.instrument)) return false;
+    if (actions.length && !actions.includes(issue.action)) return false;
+    if (epic && issue.parentSummary !== epic) return false;
+    if (tester && issue.tester !== tester) return false;
+    if (statusFrom && issue.status !== statusFrom) return false;
+    if (dueFrom && (!issue.dueDate || issue.dueDate < dueFrom)) return false;
+    if (dueTo && (!issue.dueDate || issue.dueDate > dueTo)) return false;
+    if (searchText) {
+      // Search the written test case too, so a dependency named only in the
+      // pre-conditions (such as a shared system) still matches.
+      const haystack = [issue.testName, issue.action, issue.instrument, issue.platform,
+                        issue.testCaseDetail].join(' ').toLowerCase();
+      if (!haystack.includes(searchText)) return false;
+    }
+    return true;
+  });
+}
+
+function renderBulkMatches() {
+  const matches = bulkMatches();
+  const byStatus = {};
+  const byTester = {};
+  for (const issue of matches) {
+    byStatus[issue.status] = (byStatus[issue.status] || 0) + 1;
+    byTester[issue.tester || 'unknown'] = (byTester[issue.tester || 'unknown'] || 0) + 1;
+  }
+
+  const selectedCount = matches.filter(i => bulkSelectedKeys.has(i.key)).length;
+
+  document.getElementById('bulk-match-summary').innerHTML =
+    `<div class="stat"><b>${matches.length}</b><span class="muted">matched</span></div>` +
+    `<div class="stat"><b style="color:var(--accent);">${selectedCount}</b><span class="muted">selected</span></div>` +
+    Object.entries(byStatus).sort((a, b) => b[1] - a[1]).map(([status, count]) =>
+      `<div class="stat"><b>${count}</b><span class="muted">${status}</span></div>`).join('') +
+    `<div class="stat"><b>${Object.keys(byTester).length}</b><span class="muted">testers affected</span></div>`;
+
+  const toolbar =
+    `<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+       <button onclick="selectAllBulk()">Select all matched</button>
+       <button onclick="clearBulkSelection()">Clear selection</button>
+       <span class="muted">${selectedCount
+         ? `applying to ${selectedCount} selected`
+         : 'nothing selected, so this applies to all ' + matches.length + ' matched'}</span>
+     </div>`;
+
+  document.getElementById('bulk-match-list').innerHTML = matches.length
+    ? toolbar + `<table><thead><tr><th></th><th>Key</th><th>Test</th><th>Status</th>
+         <th>Tester</th><th>Due</th></tr></thead>
+       <tbody>${matches.map(issue => `<tr class="${bulkSelectedKeys.has(issue.key) ? 'selected' : ''}"
+             onclick="toggleBulkSelection('${issue.key}', event)">
+         <td><input type="checkbox" ${bulkSelectedKeys.has(issue.key) ? 'checked' : ''}
+              onclick="event.stopPropagation();toggleBulkSelection('${issue.key}', event)"></td>
+         <td><a href="${issue.url}" target="_blank" onclick="event.stopPropagation()">${issue.key}</a></td>
+         <td>${escapeHtml(issue.testName)}<div class="muted">${escapeHtml(issue.action || '')}</div></td>
+         <td><span class="status ${issue.statusCategory}">${issue.status}</span></td>
+         <td class="muted">${issue.tester}</td>
+         <td class="muted">${issue.dueDate || ''}</td></tr>`).join('')}</tbody></table>`
+    : '<p class="muted">Nothing matches these filters.</p>';
+
+  document.getElementById('bulk-apply-button').disabled = matches.length === 0;
+}
+
+function resetBulkFilters() {
+  ['bulk-epic', 'bulk-tester', 'bulk-status-from', 'bulk-due-from', 'bulk-due-to',
+   'bulk-search'].forEach(id => document.getElementById(id).value = '');
+  ['bulk-platform', 'bulk-instrument', 'bulk-action'].forEach(id =>
+    [...document.getElementById(id).options].forEach(option => option.selected = false));
+  renderBulkMatches();
+}
+
+function openBulkConfirm() {
+  const matches = bulkTargets();
+  const usingSelection = bulkMatches().some(i => bulkSelectedKeys.has(i.key));
+  const commentText = document.getElementById('bulk-comment').value.trim();
+  const statusFrom = document.getElementById('bulk-status-from').value;
+  const statusTo = document.getElementById('bulk-status-to').value;
+
+  if (!commentText && !statusTo) {
+    alert('Enter a comment, choose a target status, or both.');
+    return;
+  }
+
+  const wouldSkip = statusTo && statusFrom
+    ? matches.filter(i => i.status !== statusFrom).length : 0;
+  const testersAffected = [...new Set(matches.map(i => i.tester).filter(Boolean))];
+
+  const activeFilters = [
+    ['Search', document.getElementById('bulk-search').value.trim()],
+    ['Platform', chosenValues('bulk-platform').join(', ')],
+    ['Instrument', chosenValues('bulk-instrument').join(', ')],
+    ['Type', chosenValues('bulk-action').join(', ')],
+    ['Area', document.getElementById('bulk-epic').value],
+    ['Tester', document.getElementById('bulk-tester').value],
+    ['Status from', statusFrom],
+  ].filter(([, value]) => value);
+
+  showModal(`<h3>Apply to ${matches.length} item(s)?</h3>
+    <div class="muted" style="margin:0 0 6px;">${usingSelection
+      ? `${matches.length} hand-picked item(s)`
+      : 'all matched items (nothing hand-picked)'}</div>
+    ${activeFilters.length ? `<div class="muted" style="margin:6px 0;">Matching:
+      ${activeFilters.map(([name, value]) =>
+        `<span class="chip">${escapeHtml(name)}: ${escapeHtml(value)}</span>`).join('')}</div>`
+      : (usingSelection ? '' : '<div class="warnbox">No filters set, so this matches every item.</div>')}
+    <div style="margin:10px 0;">
+      ${commentText ? `<div><b>Comment</b><div class="preview-frame" style="margin-top:6px;">
+          ${escapeHtml(commentText).replace(/\n/g, '<br>')}</div></div>` : ''}
+      ${statusTo ? `<div style="margin-top:10px;"><b>Status</b> &rarr; ${statusTo}
+          ${statusFrom ? `<span class="muted">(only items currently ${statusFrom})</span>` : ''}</div>` : ''}
+      ${wouldSkip ? `<div class="muted" style="margin-top:6px;">${wouldSkip} item(s) will be
+          skipped for the status change because they are not currently ${statusFrom}.</div>` : ''}
+    </div>
+    <div class="warnbox">This notifies ${testersAffected.length} tester(s):
+      ${testersAffected.join(', ') || 'none'}.</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeModal()">Cancel</button>
+      <button class="primary" onclick="submitBulk()">Apply now</button></div>`);
+}
+
+async function submitBulk() {
+  const matches = bulkTargets();
+  showModal('<h3>Applying…</h3><p class="muted">Writing to Jira, please wait.</p>');
+  const response = await fetch('/api/bulk', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      issueKeys: matches.map(i => i.key),
+      comment: document.getElementById('bulk-comment').value.trim(),
+      statusFrom: document.getElementById('bulk-status-from').value,
+      statusTo: document.getElementById('bulk-status-to').value,
+    }),
+  });
+  const result = await response.json();
+  if (result.error) {
+    showModal(`<h3>Failed</h3><p class="result-fail">${escapeHtml(String(result.error))}</p>
+      <button onclick="closeModal()">Close</button>`);
+    return;
+  }
+  const failures = result.results.filter(r => !r.ok);
+  const skipped = failures.filter(f => f.detail.includes('skipped'));
+  const realFailures = failures.filter(f => !f.detail.includes('skipped'));
+  showModal(`<h3>Bulk update complete</h3>
+    <p><span class="result-ok">${result.results.length - failures.length} updated</span>
+      ${skipped.length ? ` · <span class="muted">${skipped.length} skipped by the status guard</span>` : ''}
+      ${realFailures.length ? ` · <span class="result-fail">${realFailures.length} failed</span>` : ''}</p>
+    ${realFailures.length ? `<div class="preview-frame">${realFailures.map(f =>
+      `<div class="result-fail">${f.key}: ${f.detail}</div>`).join('')}</div>` : ''}
+    <div style="margin-top:12px;text-align:right;">
+      <button class="primary" onclick="finishBulk()">Done</button></div>`);
+}
+
+function finishBulk() {
+  closeModal();
+  document.getElementById('bulk-comment').value = '';
+  bulkSelectedKeys.clear();
+  loadIssues(true);
+}
+
+function showModal(innerHtml) {
+  document.getElementById('modal-root').innerHTML =
+    `<div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
+       <div class="modal">${innerHtml}</div></div>`;
+}
+function closeModal() { document.getElementById('modal-root').innerHTML = ''; }
+
+function selectionSummaryHtml() {
+  const keys = [...selectedKeys].sort();
+  return `<p class="muted">${keys.length} item${keys.length === 1 ? '' : 's'}:</p>
+    <div style="max-height:110px;overflow:auto;">${keys.map(k => `<span class="chip">${k}</span>`).join('')}</div>`;
+}
+
+function openCommentModal() {
+  showModal(`<h3>Add comment to ${selectedKeys.size} item(s)</h3>${selectionSummaryHtml()}
+    <label>Comment</label>
+    <textarea id="comment-text" placeholder="Testers are unable to trade today because the order gateway is down."></textarea>
+    <div class="warnbox">Posts a real comment to every selected item and notifies watchers.</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeModal()">Cancel</button>
+      <button class="primary" onclick="submitComment()">Post comment</button></div>`);
+}
+
+async function submitComment() {
+  const commentText = document.getElementById('comment-text').value.trim();
+  if (!commentText) { alert('Enter a comment first.'); return; }
+  await runAction('/api/comment', { issueKeys: [...selectedKeys], comment: commentText }, 'Comment posted');
+}
+
+function openStatusModal() {
+  const statuses = ['Blocked', 'Testing Failed', 'In Progress', 'UAT', 'RETEST', 'To Do', 'Done', 'Closed', 'WONT DO'];
+  showModal(`<h3>Change status on ${selectedKeys.size} item(s)</h3>${selectionSummaryHtml()}
+    <label>Target status</label>
+    <select id="target-status">${statuses.map(s => `<option>${s}</option>`).join('')}</select>
+    <div class="warnbox">Transitions apply immediately and notify watchers.</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeModal()">Cancel</button>
+      <button class="primary" onclick="submitStatus()">Apply</button></div>`);
+}
+
+async function submitStatus() {
+  await runAction('/api/status',
+    { issueKeys: [...selectedKeys], status: document.getElementById('target-status').value },
+    'Status changed');
+}
+
+function openDatesModal() {
+  showModal(`<h3>Set dates on ${selectedKeys.size} item(s)</h3>${selectionSummaryHtml()}
+    <label>Start date</label><input type="date" id="new-start-date">
+    <div class="warnbox">Due date is derived automatically as start + 2 business days,
+      matching the existing UAT schedule.</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeModal()">Cancel</button>
+      <button class="primary" onclick="submitDates()">Apply</button></div>`);
+}
+
+async function submitDates() {
+  const startDate = document.getElementById('new-start-date').value;
+  if (!startDate) { alert('Pick a start date.'); return; }
+  await runAction('/api/dates', { issueKeys: [...selectedKeys], startDate }, 'Dates updated');
+}
+
+function openAssignModal() {
+  const selected = allIssues.filter(i => selectedKeys.has(i.key));
+  const byTester = {};
+  for (const issue of selected) byTester[issue.tester || '(no tester in title)'] =
+    (byTester[issue.tester || '(no tester in title)'] || 0) + 1;
+  showModal(`<h3>Assign ${selectedKeys.size} item(s) to their testers</h3>
+    <p class="muted">Each item goes to the tester named in its own title. No manual mapping.</p>
+    <div style="margin:10px 0;">${Object.entries(byTester).sort()
+      .map(([name, count]) => `<div><b>${name}</b> <span class="muted">${count} items</span></div>`).join('')}</div>
+    <div class="warnbox">Assigning notifies each tester.</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeModal()">Cancel</button>
+      <button class="primary" onclick="submitAssign()">Apply</button></div>`);
+}
+
+async function submitAssign() {
+  await runAction('/api/assign', { issueKeys: [...selectedKeys] }, 'Assigned');
+}
+
+// Writes are sent in batches so the progress bar reflects real work done, not a guess,
+// and so no single request has to carry hundreds of issues.
+const WRITE_BATCH_SIZE = 25;
+let writeInProgress = false;
+
+function showProgress(title, done, total) {
+  const percent = total ? Math.round((done / total) * 100) : 0;
+  let toast = document.getElementById('progress-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'progress-toast';
+    toast.className = 'progress-toast';
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = `<h4>${title}</h4>
+    <div class="progress-track"><div class="progress-fill" style="width:${percent}%"></div></div>
+    <div class="progress-meta"><span>${done} of ${total}</span><span>${percent}%</span></div>`;
+}
+
+function finishProgress(title, succeeded, failures, extraNote) {
+  const toast = document.getElementById('progress-toast');
+  if (!toast) return;
+  toast.innerHTML = `<h4>${title}</h4>
+    <div><span class="result-ok">${succeeded} succeeded</span>
+      ${failures.length ? ` · <span class="result-fail">${failures.length} failed</span>` : ''}</div>
+    ${extraNote ? `<div class="muted">${extraNote}</div>` : ''}
+    ${failures.length ? `<div class="preview-frame" style="max-height:120px;margin-top:8px;">
+        ${failures.slice(0, 20).map(f =>
+          `<div class="result-fail">${f.key}: ${f.detail}</div>`).join('')}</div>` : ''}
+    <div style="margin-top:10px;text-align:right;">
+      <button onclick="dismissProgress()">Dismiss</button></div>`;
+}
+
+function dismissProgress() {
+  const toast = document.getElementById('progress-toast');
+  if (toast) toast.remove();
+}
+
+async function runAction(endpoint, payload, successLabel) {
+  if (writeInProgress) { alert('A write is already running. Wait for it to finish.'); return; }
+  const issueKeys = payload.issueKeys || [];
+  if (!issueKeys.length) { alert('Nothing selected.'); return; }
+
+  writeInProgress = true;
+  closeModal();                       // the GUI stays usable while this runs
+  showProgress(`${successLabel}…`, 0, issueKeys.length);
+
+  const allResults = [];
+  let extraNote = '';
+  try {
+    for (let start = 0; start < issueKeys.length; start += WRITE_BATCH_SIZE) {
+      const batch = issueKeys.slice(start, start + WRITE_BATCH_SIZE);
+      const response = await fetch(endpoint, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...payload, issueKeys: batch }),
+      });
+      const result = await response.json();
+      if (result.error) {
+        finishProgress('Failed', 0, [{ key: '', detail: result.error }]);
+        return;
+      }
+      allResults.push(...result.results);
+      if (result.derivedDueDate) extraNote = `Due date set to ${result.derivedDueDate}`;
+      showProgress(`${successLabel}…`, allResults.length, issueKeys.length);
+    }
+  } catch (error) {
+    finishProgress('Failed', allResults.filter(r => r.ok).length,
+                   [{ key: '', detail: String(error) }]);
+    return;
+  } finally {
+    writeInProgress = false;
+  }
+
+  const failures = allResults.filter(r => !r.ok);
+  finishProgress(successLabel, allResults.length - failures.length, failures, extraNote);
+  selectedKeys.clear();
+  await loadIssues(true, true);
+}
+
+function emailPayload() {
+  const chosen = [...document.getElementById('email-testers').selectedOptions].map(o => o.value);
+  return {
+    startDate: document.getElementById('email-start').value,
+    endDate: document.getElementById('email-end').value,
+    testers: chosen.length ? chosen : null,
+  };
+}
+
+async function previewEmails() {
+  document.getElementById('email-results').innerHTML = '<p class="muted">Building preview…</p>';
+  const response = await fetch('/api/emails/preview', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(emailPayload()),
+  });
+  const result = await response.json();
+  document.getElementById('email-results').innerHTML = result.preview.length
+    ? result.preview.map(item => `<details style="margin-bottom:8px;">
+        <summary><b>${item.tester}</b>: ${item.count} test cases</summary>
+        <div class="preview-frame" style="margin-top:8px;">${item.html}</div></details>`).join('')
+    : '<p class="muted">Nothing matches that range once Blocked / Testing Failed are excluded.</p>';
+}
+
+async function generateEmails() {
+  const target = document.getElementById('email-results');
+  target.innerHTML = '<p class="muted">Building the drafts…</p>';
+  const response = await fetch('/api/emails', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(emailPayload()),
+  });
+  const result = await response.json();
+  if (redirectIfSignedOut(result)) return;
+  if (result.error) {
+    target.innerHTML = `<p class="result-fail">Failed: ${escapeHtml(String(result.error))}</p>`;
+    return;
+  }
+  target.innerHTML =
+    `<p class="result-ok">${result.emails.length} draft(s) ready. Download one and it opens in Outlook,
+      addressed and ready to send.</p>` +
+    result.emails.map(item =>
+      `<div class="download-row"><a class="chip" href="${item.downloadUrl}" download>⬇ ${item.tester}</a>
+       <span class="muted">${item.count} cases · ${item.email || 'no address on file'}</span></div>`
+    ).join('');
+}
+
+async function previewSummary() {
+  const target = document.getElementById('summary-results');
+  target.innerHTML = '<p class="muted">Building summary…</p>';
+  const response = await fetch('/api/summary/preview', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      startDate: document.getElementById('email-start').value,
+      endDate: document.getElementById('email-end').value,
+    }),
+  });
+  const result = await response.json();
+  if (result.error) { target.innerHTML = `<p class="result-fail">${escapeHtml(String(result.error))}</p>`; return; }
+  target.innerHTML = `<p class="muted">${result.itemCount} test cases in range</p>
+    <div class="preview-frame" style="max-height:460px;">${result.html}</div>`;
+}
+
+async function createSummaryEmail() {
+  const recipients = document.getElementById('summary-recipients').value.trim();
+  if (!recipients) { alert('Enter at least one recipient address.'); return; }
+  const target = document.getElementById('summary-results');
+  target.innerHTML = '<p class="muted">Talking to Outlook…</p>';
+  const response = await fetch('/api/summary', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      recipients,
+      startDate: document.getElementById('email-start').value,
+      endDate: document.getElementById('email-end').value,
+    }),
+  });
+  const result = await response.json();
+  if (redirectIfSignedOut(result)) return;
+  target.innerHTML = result.error
+    ? `<p class="result-fail">Failed: ${escapeHtml(String(result.error))}</p>`
+    : `<p class="result-ok">Summary draft ready (${result.itemCount} test cases)</p>
+       <div class="download-row"><a class="chip" href="${result.downloadUrl}" download>⬇ ${result.fileName}</a></div>`;
+}
+
+async function generateBreakdownEmail(button) {
+  const original = button.textContent;
+  const target = document.getElementById('breakdown-results');
+  button.disabled = true;
+  button.textContent = 'Building the draft…';
+  target.innerHTML = '<p class="muted">Building the by-tester breakdown…</p>';
+  try {
+    const response = await fetch('/api/emails/breakdown', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}',
+    });
+    const result = await response.json();
+    if (redirectIfSignedOut(result)) return;
+    target.innerHTML = result.error
+      ? `<p class="result-fail">Failed: ${escapeHtml(String(result.error))}</p>`
+      : `<p class="result-ok">Breakdown draft ready (${result.itemCount} test cases across `
+        + `${result.testerCount} testers)</p>`
+        + `<div class="download-row"><a class="chip" href="${result.downloadUrl}" download>⬇ ${result.fileName}</a></div>`;
+  } catch (error) {
+    target.innerHTML = `<p class="result-fail">Failed: ${escapeHtml(String(error))}</p>`;
+  } finally {
+    button.disabled = false;
+    button.textContent = original;
+  }
+}
+
+async function generateBreakdownCsv(button) {
+  const original = button.textContent;
+  const target = document.getElementById('breakdown-results');
+  button.disabled = true;
+  button.textContent = 'Writing CSV…';
+  target.innerHTML = '<p class="muted">Building the by-tester CSV…</p>';
+  try {
+    const response = await fetch('/api/emails/breakdown.csv', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}',
+    });
+    const result = await response.json();
+    if (redirectIfSignedOut(result)) return;
+    target.innerHTML = result.error
+      ? `<p class="result-fail">Failed: ${escapeHtml(String(result.error))}</p>`
+      : `<p class="result-ok">CSV ready (${result.itemCount} test cases across `
+        + `${result.testerCount} testers)</p>`
+        + `<div class="download-row"><a class="chip" href="${result.downloadUrl}" download>⬇ ${result.fileName}</a></div>`;
+  } catch (error) {
+    target.innerHTML = `<p class="result-fail">Failed: ${escapeHtml(String(error))}</p>`;
+  } finally {
+    button.disabled = false;
+    button.textContent = original;
+  }
+}
+
+loadSignedInUser();
+loadIssues(false);
+</script>
+</body>
+</html>

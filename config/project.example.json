@@ -1,0 +1,52 @@
+{
+  "_comment": "What this instance tracks. Copy to project.json and edit. Only jira.project is required; every other value shown here is the default, so delete any line you do not need to change. Epics are optional: leave one blank and the feature that uses it simply shows nothing.",
+
+  "jira": {
+    "project": "UAT",
+    "testerIssueType": "Tester",
+    "sourceIssueTypes": ["Task", "Subtask"],
+    "startDateField": "customfield_10015",
+    "bugIssueType": "Bug",
+    "actionItemIssueType": "Action Item",
+    "defectLinkType": "Blocks",
+    "defaultPriority": "Medium"
+  },
+
+  "epics": {
+    "_comment": "Issue keys. Defects raised in the app are created under 'defects'.",
+    "defects": "UAT-100",
+    "readiness": "UAT-101",
+    "devDefects": "UAT-102",
+    "compliance": ""
+  },
+
+  "statuses": {
+    "toDo": "To Do",
+    "inProgress": "In Progress",
+    "done": "Done",
+    "blocked": "Blocked",
+    "failed": "Testing Failed",
+    "retest": "Retest",
+    "cancelled": ["Won't Do", "Wont Do", "Dupe"],
+    "complianceExcluded": ["Won't Do", "Wont Do"]
+  },
+
+  "schedule": {
+    "_comment": "endDate drives the 'are we on track?' banner in the summary email; leave it blank to hide the banner.",
+    "testingWindowBusinessDays": 2,
+    "endDate": "2026-12-18"
+  },
+
+  "emails": {
+    "_comment": "Attachments are files in config/attachments/, sent with every tester email.",
+    "guideUrl": "",
+    "defectsRaisedBy": "the test leads",
+    "questionsChannel": "the project channel",
+    "attachments": []
+  },
+
+  "export": {
+    "excludedTesters": [],
+    "dateFormat": "%Y-%m-%d"
+  }
+}

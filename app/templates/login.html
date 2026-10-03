@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sign in to {{ app_name }}</title>
+<style>
+  :root {
+    --accent: #0052cc; --line: #dfe1e6; --muted: #6b778c; --ink: #172b4d;
+    --fail: #bf2600; --page: #eef1f5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center;
+    justify-content: center; background: var(--page); color: var(--ink);
+    font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px;
+  }
+  .card {
+    width: 380px; background: #fff; border: 1px solid var(--line);
+    border-top: 4px solid var(--accent); border-radius: 8px; padding: 26px 28px;
+  }
+  h1 { margin: 0 0 4px; font-size: 20px; }
+  p.lead { margin: 0 0 20px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+  label { display: block; margin: 0 0 6px; font-size: 12px; color: var(--muted); }
+  select, input {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px;
+    font-size: 14px; font-family: inherit; background: #fff; color: var(--ink);
+  }
+  select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .field { margin-bottom: 14px; }
+  button {
+    width: 100%; margin-top: 6px; padding: 9px 12px; border: 1px solid var(--accent);
+    border-radius: 4px; background: var(--accent); color: #fff; font-size: 14px;
+    font-family: inherit; cursor: pointer;
+  }
+  button:disabled { opacity: .55; cursor: default; }
+  .message { margin-top: 14px; font-size: 13px; min-height: 18px; }
+  .message.fail { color: var(--fail); }
+  .hint { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line);
+          color: var(--muted); font-size: 12px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>{{ app_name }}</h1>
+  <p class="lead">Pick who you are. Every comment, status change and assignment you make is
+    written to Jira under your own account.</p>
+
+  <div class="field">
+    <label for="user-select">Logged in as</label>
+    <select id="user-select"><option>Loading…</option></select>
+  </div>
+
+  <div class="field" id="access-code-field" style="display:none;">
+    <label for="access-code">Access code</label>
+    <input type="password" id="access-code" autocomplete="off">
+  </div>
+
+  <button id="sign-in-button" onclick="signIn()">Sign in</button>
+  <div class="message" id="message"></div>
+
+  <div class="hint" id="hint"></div>
+</div>
+
+<script>
+let users = [];
+
+function selectedUser() {
+  const userId = document.getElementById('user-select').value;
+  return users.find(user => user.id === userId) || null;
+}
+
+// Only ask for a code when the chosen person actually has one configured.
+function showAccessCodeIfNeeded() {
+  const user = selectedUser();
+  document.getElementById('access-code-field').style.display =
+    user && user.requiresAccessCode ? '' : 'none';
+}
+
+function showMessage(text, isFailure) {
+  const target = document.getElementById('message');
+  target.textContent = text;
+  target.className = isFailure ? 'message fail' : 'message';
+}
+
+async function loadUsers() {
+  const response = await fetch('/api/session');
+  const result = await response.json();
+
+  // Already signed in - no reason to make anyone pick themselves twice.
+  if (result.user) { window.location = '/'; return; }
+
+  if (result.error) {
+    document.getElementById('user-select').innerHTML = '<option>No users configured</option>';
+    showMessage(result.error, true);
+    return;
+  }
+
+  users = result.users;
+  const select = document.getElementById('user-select');
+  select.innerHTML = users.map(user =>
+    `<option value="${user.id}"${user.configured ? '' : ' disabled'}>` +
+    `${user.name}${user.configured ? '' : ' (no API token configured)'}</option>`).join('');
+  select.onchange = showAccessCodeIfNeeded;
+  showAccessCodeIfNeeded();
+
+  const unconfigured = users.filter(user => !user.configured).length;
+  document.getElementById('hint').textContent = unconfigured
+    ? `${unconfigured} of ${users.length} people still need a Jira API token in the .env `
+      + `before they can sign in.`
+    : `${users.length} people can sign in. To add another, put their Jira API token in the `
+      + `.env and add them to config/users.json.`;
+}
+
+async function signIn() {
+  const user = selectedUser();
+  if (!user) { showMessage('Pick who you are first.', true); return; }
+
+  const button = document.getElementById('sign-in-button');
+  button.disabled = true;
+  showMessage('Signing in…', false);
+  try {
+    const response = await fetch('/api/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user.id,
+        accessCode: document.getElementById('access-code').value,
+      }),
+    });
+    const result = await response.json();
+    if (result.error) { showMessage(result.error, true); return; }
+    window.location = '/';
+  } catch (error) {
+    showMessage('Could not sign in: ' + error, true);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Enter') signIn();
+});
+
+loadUsers();
+</script>
+
+</body>
+</html>

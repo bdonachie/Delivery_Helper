@@ -1,0 +1,8 @@
+{
+  "_comment": "The people who run tests. A tester item's title ends with the tester's name with the spaces removed (e.g. ...-JaneSmith), which is how items are matched to people here. accountId is their Jira account id, used when assigning items; assignment is only made for testers marked confirmed. email is where their to-do draft is addressed.",
+
+  "testers": [
+    {"name": "Jane Smith", "email": "jane.smith@example.com", "accountId": "000000:00000000-0000-0000-0000-000000000001", "confirmed": true},
+    {"name": "Sam Lee", "email": "sam.lee@example.com", "accountId": "000000:00000000-0000-0000-0000-000000000002", "confirmed": false}
+  ]
+}

@@ -1,0 +1,16 @@
+# Secrets and one organisation's configuration - the *.example.json files are the templates.
+.env
+config/users.json
+config/project.json
+config/testers.json
+config/attachments/*
+!config/attachments/.gitkeep
+
+# Everything the app generates.
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
